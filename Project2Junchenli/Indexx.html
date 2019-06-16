@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="main.CSS">
+
+
+
+    <link rel="stylesheet" href="dist/magnific-popup.css">
+
+
+    <title>340 p2 ex</title>
+    <script src="https://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        //now what?
+        //api:  http://www.ist.rit.edu/api/
+        $(document).ready(function() {
+
+            //------------map------------
+
+
+
+
+
+            $('.button-group').each(function(i, buttonGroup) {
+                var $buttonGroup = $(buttonGroup);
+                $buttonGroup.on('click', 'button', function() {
+                    $buttonGroup.find('.is-checked').removeClass('is-checked');
+                    $(this).addClass('is-checked');
+                });
+            });
+
+            //--------------Initializing popup plug-in---------------
+
+            $('.popup-with-form').magnificPopup({
+                type: 'inline',
+                preloader: false,
+                focus: '#name',
+
+                // When elemened is focused, some mobile browsers in some cases zoom in
+                // It looks not nice, so we disable it:
+                callbacks: {
+                    beforeOpen: function() {
+                        if ($(window).width() < 700) {
+                            this.st.focus = false;
+                        } else {
+                            this.st.focus = '#name';
+                        }
+                    }
+                }
+            });
+
+
+
+            $('.open-popup-link').magnificPopup({
+                type: 'inline',
+                midClick: true // Allow opening popup on middle mouse click. Always set it to true if you don't provide alternative source in href.
+            });
+
+
+
+            //have any method to display all the sub-root nodes?
+
+
+            //-----------------------about-----------------------------------
+            xhr('get', {
+                path: '/about'
+            }, '#about').done(function(json) {
+
+                $('.about-container-title').append('<h1>' + json.title + '</h1>');
+                $('.about-container-text').append('<p>' + json.description + '</p>');
+                $('.about-quote-content').append('<p>' + json.quote + '</p>');
+                $('.about-quote-author').append('<p>' + json.quoteAuthor + '</p>');
+                //have any method to display all the sub-root nodes?
+            });
+
+            //-----------------------Degree-----------------------------------
+
+            //-----------------------Degree-Undergraduate-----------------------------------
+            xhr('get', {
+                path: '/degrees/undergraduate/'
+            }, '#degrees').done(function(json) {
+                $.each(json.undergraduate, function(i, item) {
+                    var x = ".undergrad-column" + i
+                    $(x).append('<h2 data-dname=" ' + this.degreeName + '">' + this.title + '</h2>');
+                    $(x).append('<p>' + item.description + '</p>');
+
+                });
+            });
+            //-----------------------Degree-graduate-----------------------------------
+
+            xhr('get', {
+                path: '/degrees/graduate/'
+            }, '#degrees').done(function(json) {
+                $.each(json.graduate, function(i, item) {
+                    var x = ".grad-column" + i
+                    $(x).append('<h2 data-dname=" ' + this.degreeName + '">' + this.title + '</h2>');
+                    $(x).append('<p>' + item.description + '</p>');
+
+
+                });
+            });
+
+            //--------------------------Minors------------------------------------------
+
+            xhr('get', {
+                path: '/minors'
+            }, '#minors').done(function(json) {
+                $.each(json.UgMinors, function(i, item) {
+                    var x = ".minors-column" + i
+
+                    $(x).append('<p data-dname=" ' + this.name + '">' + this.title + '</p>');
+
+                });
+            });
+
+
+            //-----------------------------employment--------------------------
+            //how to display employer randomly,career
+            xhr('get', {
+                path: '/employment'
+            }, '#employment').done(function(json) {
+
+                $('.employ').append('<h1>' + json.introduction.title + '</h1>');
+
+                $.each(json.introduction.content, function(i, item) {
+
+                    $('.employ-intro').append('<h1 >' + this.title + '</h1>');
+                    $('.employ-intro').append('<p>' + item.description + '</p>');
+
+                });
+
+
+                $.each(json.degreeStatistics.statistics, function(i, item) {
+                    var x = ".employ-stat" + i
+
+                    $(x).append('<h4 data-dname=" ' + this.value + '" >' + item.value + '</h4>');
+                    $(x).append('<p>' + item.description + '</p>');
+
+                });
+
+                $('.employer-container').append('<h1>' + json.employers.title + '</h1>');
+
+
+                $.each(json.employers.employerNames, function(i, item) {
+                    $('.employer-container').append('<p class="employer">' + item + '</p>');
+                });
+
+                //coop form
+                $('.cooptable').append('<h2>' + json.coopTable.title + '</h2>');
+
+
+                $.each(json.coopTable.coopInformation, function(json) {
+                    var x = '';
+
+                    x += '<tr><td style="width:13%;text-align:center;">' + this.employer + '</td><td style="width:22%;text-align:center;">' + this.degree + '</td><td style="width:15%;text-align:center;">' + this.city + '</td><td style="width:10%;text-align:center;">' + this.term + '</td></tr>'
+
+                    $('.coop-tbody').append(x);
+                });
+
+                //employment form
+                $.each(json.employmentTable.professionalEmploymentInformation, function(json) {
+
+                    var x = '';
+
+                    x += '<tr><td style="width:17%;text-align:center;">' + this.degree + '</td><td style="width:23%;text-align:center;">' + this.employer + '</td><td style="width:15%;text-align:center;">' + this.city + '</td><td style="width:28%;text-align:center;">' + this.title + '</td><td style="width:17%;text-align:center;">' + this.startDate + '</td></tr>'
+
+                    $('.emp-tbody').append(x);
+                });
+                $('.employmenttable').append('<h2>' + json.employmentTable.title + '</h2>');
+            });
+
+
+            //----------people-------------
+
+            xhr('get', {
+                path: '/people/'
+            }, '#people').done(function(json) {
+                $('.peoplegrid-title').append('<h1>' + json.title + '</h1><h2>' + json.subTitle + '</h4>');
+
+
+                $.each(json.staff, function(json) {
+                    var x = '<div  id="' + this.username + '" class="white-popup mfp-hide"><h2>' + this.name + '</h2><h2>' + this.title + '</h2><img style="max-width:150px"; src="' +
+                        this.imagePath + '"/><h3>Interesting area<p>' + this.interestArea + '</p></h3><h3>Contact<p>Email: ' + this.email + '</p><p>Phone: ' + this.phone + '</p><p>Office: ' + this.office + '</p></h3></div>';
+
+
+                    getImageItem2(this.imagePath);
+                    var items = getImageItem2(this.imagePath, this.name, this.title, this.username);
+                    items += '<p>' + this.name + '</p><p>' + this.title + '</p>' + x + '</div>'
+
+
+
+                    $('.peoplegrid').prepend($(items));
+
+
+                });
+                //put out all of the faculty
+                $.each(json.faculty, function(json) {
+                    var x = '<div  id="' + this.username + '" class="white-popup mfp-hide"><h2>' + this.name + '</h2><h2>' + this.title + '</h2><img style="max-width:150px"; src="' +
+                        this.imagePath + '"/><h3>Interesting area<p>' + this.interestArea + '</p></h3><h3>Contact<p>Email: ' + this.email + '</p><p>Phone: ' + this.phone + '</p><p>Office: ' + this.office + '</p></h3></div>';
+
+
+
+                    getImageItem(this.imagePath);
+                    var items = getImageItem(this.imagePath, this.name, this.title, this.username);
+                    items += '<p>' + this.name + '</p><p>' + this.title + '</p>' + x + '</div>'
+
+
+
+                    $('.peoplegrid').prepend($(items));
+
+
+                    //$('.peoplegrid').prepend($(x));
+
+
+                    // use ImagesLoaded
+
+
+                    // reset progress counter
+                });
+
+
+
+
+
+                $('.open-popup-link').magnificPopup({
+                    type: 'inline',
+                    midClick: true // Allow opening popup on middle mouse click. Always set it to true if you don't provide alternative source in href.
+                });
+
+
+
+                var $grid = $('.peoplegrid').imagesLoaded(function() {
+                    // init Isotope after all images have loaded
+                    $grid.isotope({
+                        itemSelector: '.element-item',
+                        layoutMode: 'fitRows'
+
+                    });
+                });
+                $('.filter-button-group').on('click', 'button', function() {
+                    var filterValue = $(this).attr('data-filter');
+
+                    $grid.isotope({
+                        filter: filterValue
+                    });
+
+                });
+
+            });
+
+            // get people info.
+            function getImageItem(srcs, names, titles, usernames) {
+                src = srcs;
+                name = names;
+                title = titles;
+                username = "#" + usernames;
+
+                var item = '<div  class="element-item peoplegrid-item">';
+                item += '<a href="' + username + '" class= open-popup-link ><img src="' + src + '"/></a>';
+                return item;
+            }
+
+            function getImageItem2(srcs, names, titles, usernames) {
+                src = srcs;
+                name = names;
+                title = titles;
+                username = "#" + usernames;
+
+                var item = '<div class="element-item peoplegrid-item2">';
+                item += '<a href="' + username + '" class= open-popup-link ><img src="' + src + '"/></a>';
+                return item;
+            }
+
+        });
+
+        //--------------------------research-------------------------------------
+
+        xhr('get', {
+            path: '/research'
+        }, '#research').done(function(json) {
+
+
+            $.each(json.byInterestArea, function(i, item) {
+                var items = '<a href="#' + this.areaName + '" class= open-popup-link ><div class="researchgrid" ><h2>' + this.areaName + '</h2></div></a>'
+                items += '<div id="' + this.areaName + '" class="white-popup mfp-hide" ><p>' + item.citations + '<p></div>'
+
+                $('.byArea').append($(items));
+            });
+
+            $.each(json.byFaculty, function(i, item) {
+                var items = '<a href="#' + this.username + 'rea" class= open-popup-link ><div class="researchgrid" id=' + this.facultyName + '><h2>' + this.facultyName + '</h2></div></a>'
+
+                items += '<div id="' + this.username + 'rea" class="white-popup mfp-hide" ><p>' + item.citations + '<p></br></div>'
+                $('.byfalculty').append($(items));
+            });
+
+
+            $('.open-popup-link').magnificPopup({
+                type: 'inline',
+                midClick: true // Allow opening popup on middle mouse click. Always set it to true if you don't provide alternative source in href.
+            });
+
+            $('.byArea').masonry({
+                itemSelector: '.researchgrid',
+                columnWidth: 160
+            });
+        });
+
+        //-----------------------resource--------------------
+        xhr('get', {
+            path: '/resources'
+        }, '#resource').done(function(json) {
+            $('.resourcetitle').append('<h1>' + json.title + '</h1>');
+            $('.resourcetitle').append('<h3>' + json.subTitle + '</h3>');
+
+            //form
+
+            var items2 = '<a href="#gradform" class= open-popup-link ><div class="resourcegrid" ><h2>form</h2></div></a>'
+            $('.forms').append($(items2));
+
+            var items21 = '<div id="gradform" class="white-popup mfp-hide">'
+
+            $.each(json.forms.graduateForms, function(i, item) {
+
+                items21 += '<a href="' + item.href + '"><p>' + item.formName + '<p></br>'
+
+            });
+            items21 += '</div>'
+            $('.forms').append($(items21));
+            //studyaboard 
+            var items1 = '<a href="#studyaboard" class= "open-popup-link" ><div class="resourcegrid" ><h2>' + json.studyAbroad.title + '</h2></div></a>'
+            items1 += '<div id="studyaboard" class="white-popup mfp-hide" ><p>' + json.studyAbroad.description + '<p><p>' + json.studyAbroad.places + '<p></div>'
+
+            $('.studyAbroad').append($(items1));
+
+
+            //coopEnrollment
+
+            var items3 = '<a href="#coopenrollment" class= open-popup-link ><div class="resourcegrid" ><h2>coopEnrollment</h2></div></a>'
+            $('.coopEnrollment').append($(items3));
+
+            var items31 = '<div id="coopenrollment" class="white-popup mfp-hide"><a href=' + json.coopEnrollment.RITJobZoneGuidelink + '>Guidlink<a>';
+            $.each(json.coopEnrollment.enrollmentInformationContent, function(i, item) {
+
+                items31 += '<h2>' + item.title + '</h2></br><p>' + item.description + '</p>'
+
+            });
+            items31 += '</div>'
+
+            $('.coopEnrollment').append($(items31));
+
+            //studentAmbassadors
+
+            var items4 = '<a href="#Ambassadors" class= open-popup-link ><div class="resourcegrid" ><h2>Student Ambassadors</h2></div></a>'
+            $('.studentAmbassadors').append($(items4));
+
+            var items41 = '<div id="Ambassadors" class="white-popup mfp-hide"><img style="width:300px;" src="' + json.studentAmbassadors.ambassadorsImageSource + '"/><a href=' + json.studentAmbassadors.applicationFormLink + '>Application<a>';
+            $.each(json.studentAmbassadors.subSectionContent, function(i, item) {
+
+                items41 += '<h2>' + item.title + '</h2></br><p>' + item.description + '</p>'
+
+            });
+            items41 += '</div>'
+
+            $('.studentAmbassadors').append($(items41));
+
+
+
+
+
+
+
+
+
+
+
+        });
+
+
+
+
+
+
+        function getcoop() {
+            xhr('get', {
+                path: '/employment'
+            }, '#research').done(function(json) {
+                $('.white-popup-block').append('<h2>' + json.coopTable.title + '</h2>');
+
+            });
+
+
+        }
+
+        var map;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {
+                    lat: -34.397,
+                    lng: 150.644
+                },
+                zoom: 8
+            });
+        }
+
+        // Create GeoCoder Client
+
+
+
+
+
+
+
+        function xhr(getPost, d, idForSpinner) {
+            return $.ajax({ //return!!!
+                type: getPost,
+                cache: false,
+                async: true,
+                dataType: 'json',
+                data: d,
+                url: 'proxy.php',
+                beforeSend: function() {
+                    //create the spinner IF there is a 3rd arg
+                    $(idForSpinner).append('<img src="gears.gif" class="dontuse"/>');
+
+                }
+            }).always(function() {
+                //kill the spinner
+                $(idForSpinner).find('.dontuse').fadeOut(500, function() {
+                    //kill it 
+                    $(this).remove();
+
+                });
+
+            }).fail(function(err) {
+                console.log(err);
+
+            });
+
+        }
+
+        function getAttributeByName(arr, name, val) {
+            $.each(arr, function() {
+                if (this[name] === val) {
+                    result = this;
+                }
+            });
+            return result;
+        }
+    </script>
+</head>
+
+<body>
+
+
+
+    <div id="about">
+        <div class="about-container">
+            <div class="about-container-title"></div>
+            <div class="about-container-text"></div>
+        </div>
+        <div class="about-quote">
+            <div class="about-quote-content"></div>
+            <div class="about-quote-author"></div>
+
+
+        </div>
+
+    </div>
+
+
+    <div id="degrees">
+        <div class="under-container">
+            <h1>Our Undergraduate Degrees
+            </h1>
+            <div class="row">
+                <div class="under-column undergrad-column0"></div>
+                <div class="under-column undergrad-column1"></div>
+                <div class="under-column undergrad-column2"></div>
+            </div>
+        </div>
+
+        <div class="grad-container">
+            <h1>Our Graduate Degrees
+            </h1>
+            <div class="row">
+                <div class="grad-column grad-column0"></div>
+                <div class="grad-column grad-column1"></div>
+                <div class="grad-column grad-column2"></div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+    <div id="minors">
+        <div class="minors-container">
+            <h1>Our Graduate Advanced Certificates</h1>
+
+            <ul>
+                <li>
+                    <div class="minors-column minors-column0"> </div>
+                </li>
+
+                <li>
+                    <div class="minors-column minors-column1"> </div>
+                </li>
+
+                <li>
+                    <div class="minors-column minors-column2"></div>
+                </li>
+
+                <li>
+                    <div class="minors-column minors-column3"></div>
+                </li>
+
+                <li>
+                    <div class="minors-column minors-column4"></div>
+                </li>
+
+                <li>
+                    <div class="minors-column minors-column5"></div>
+                </li>
+
+                <li>
+                    <div class="minors-column minors-column6"></div>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div id="employment">
+        <div class="employ-container">
+            <div class="employ-intro"></div>
+            <ul>
+                <li>
+                    <div class="employ-column employ-stat0">
+                    </div>
+                </li>
+                <li>
+                    <div class="employ-column employ-stat1">
+                    </div>
+                </li>
+                <li>
+                    <div class="employ-column employ-stat2">
+                    </div>
+                </li>
+                <li>
+                    <div class="employ-column employ-stat3">
+                    </div>
+                </li>
+
+            </ul>
+        </div>
+        <div class="employer-container">
+
+        </div>
+
+        <div class="coop-btn">
+            <a class="popup-with-form" href="#test-form">Coop form</a>
+
+            <table id="test-form" class="mfp-hide cooptable white-popup-block">
+                <thead>
+                    <tr>
+                        <th class="coop-thead0" style="width:13%;text-align:center;">Employer</th>
+                        <th class="coop-thead1" style="width:22%;text-align:center;">Degree</th>
+                        <th class="coop-thead2" style="width:15%;text-align:center;">City</th>
+                        <th class="coop-thead3" style="width:10%;text-align:center;">Term</th>
+                    </tr>
+                </thead>
+                <tbody class="coop-tbody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="emp-btn">
+            <a class="popup-with-form" href="#emp-form">Employment Form</a>
+
+            <table id="emp-form" class="mfp-hide employmenttable white-popup-block">
+                <thead>
+                    <tr>
+                        <th class="emp-thead0" style="width:17%;text-align:center;">DEGREE</th>
+                        <th class="emp-thead1" style="width:23%;text-align:center;">EMPLOYER</th>
+                        <th class="emp-thead2" style="width:15%;text-align:center;">LOCATION</th>
+                        <th class="emp-thead3" style="width:28%;text-align:center;">TITLE</th>
+                        <th class="emp-thead3" style="width:17%;text-align:center;">DATE</th>
+                    </tr>
+                </thead>
+                <tbody class="emp-tbody">
+                </tbody>
+            </table>
+        </div>
+
+
+    </div>
+    <div id="map" style="clear:both;height:300px;"> </div>
+
+    <div id="people">
+
+        <div class="peoplegrid-title"></div>
+        <div class="button-group filter-button-group">
+            <button class="button is-checked" data-filter="*">show all</button>
+            <button class="button" data-filter=".peoplegrid-item">Faculty</button>
+            <button class="button" data-filter=".peoplegrid-item2">Staff</button>
+        </div>
+        <div class="peoplegrid">
+        </div>
+    </div>
+
+    <div id="research">
+        <h2>Faculty Research: Areas of Interest
+        </h2>
+        <div class="byArea"></div>
+
+        <h2>Faculty Research: Lookup by Faculty
+        </h2>
+        <div class="byfalculty">
+
+        </div>
+    </div>
+
+
+    <div id="resource">
+
+        <div class="resourcetitle"></div>
+
+
+        <div class="resoursegrid studentServices"></div>
+        <div class="resoursegrid tutorsAndLabInformation"></div>
+        <div class="resoursegrid forms"></div>
+        <div class="resoursegrid studyAbroad"></div>
+        <div class="resoursegrid studentAmbassadors"></div>
+        <div class="resoursegrid coopEnrollment"></div>
+    </div>
+
+    <script>
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3NlbuwBKrwZJX-0nB6GW7pywK69cks4g&callback=initMap" async defer></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="dist/jquery.magnific-popup.js"></script>
+    <script src="dist/isotope.pkgd.min.js"></script>
+    <script src="dist/imagesloaded.pkgd.min.js"></script>
+
+
+</body>
+
+</html>
